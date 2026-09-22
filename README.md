@@ -33,6 +33,10 @@ Built as a demonstration that **practical internal tools don't need a web app** 
 
 ---
 
+## Stack
+
+`Python 3.10+` · `Pandas` · `argparse` · `pathlib` · `json` · `csv` — no database, no web server
+
 ## How to Run It
 
 ### 1. Install
@@ -42,6 +46,4 @@ git clone https://github.com/aloismutharimi/school-tracker.git
 cd school-tracker
 pip install -r requirements.txt
 
-## Stack
 
-`Python 3.10+` · `Pandas` · `argparse` · `pathlib` · `json` · `csv` — no database, no web server
