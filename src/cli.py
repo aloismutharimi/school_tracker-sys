@@ -56,15 +56,38 @@ def cmd_import_students(args):
 
 
 def cmd_report(args):
-    print_term_report(args.term)
+    # Determine mode
+    modes = [args.fees, args.grades, args.full]
+    if sum(modes) > 1:
+        print("✗ Choose only one of --fees, --grades, --full", file=sys.stderr)
+        sys.exit(1)
+
+    if args.fees:
+        mode = "fees"
+    elif args.grades:
+        mode = "grades"
+    else:
+        mode = "full"  # default
+
+    print_term_report(
+        args.term,
+        mode=mode,
+        class_filter=args.class_filter,
+        student_id=args.student,
+    )
+
     if args.export_csv:
         try:
-            path = export_term_csv(args.term)
+            path = export_term_csv(
+                args.term,
+                mode=mode,
+                class_filter=args.class_filter,
+                student_id=args.student,
+            )
             print(f"\n✓ CSV exported → {path}")
         except ValueError as e:
             print(f"✗ {e}", file=sys.stderr)
             sys.exit(1)
-
 
 def build_parser():
     parser = argparse.ArgumentParser(
@@ -107,9 +130,19 @@ def build_parser():
     p.set_defaults(func=cmd_import_students)
 
     # report
-    p = sub.add_parser("report", help="Print term report")
+    p = sub.add_parser("report", help="Print term / class / student report")
     p.add_argument("--term", required=True)
-    p.add_argument("--export-csv", action="store_true", help="Also export to CSV")
+
+    # What to include
+    p.add_argument("--fees", action="store_true", help="Fees and balances only")
+    p.add_argument("--grades", action="store_true", help="Grades and ranking only")
+    p.add_argument("--full", action="store_true", help="Both sections (default)")
+
+    # Who to include
+    p.add_argument("--class", dest="class_filter", help="Filter to one class (e.g. 'Form 2')")
+    p.add_argument("--student", help="Single student ID (overrides --class)")
+
+    p.add_argument("--export-csv", action="store_true")
     p.set_defaults(func=cmd_report)
 
     return parser
