@@ -56,7 +56,6 @@ def cmd_import_students(args):
 
 
 def cmd_report(args):
-    # Determine mode
     modes = [args.fees, args.grades, args.full]
     if sum(modes) > 1:
         print("✗ Choose only one of --fees, --grades, --full", file=sys.stderr)
@@ -67,7 +66,7 @@ def cmd_report(args):
     elif args.grades:
         mode = "grades"
     else:
-        mode = "full"  # default
+        mode = "full"
 
     print_term_report(
         args.term,
@@ -78,15 +77,23 @@ def cmd_report(args):
 
     if args.export_csv:
         try:
-            path = export_term_csv(
-                args.term,
-                mode=mode,
-                class_filter=args.class_filter,
-                student_id=args.student,
-            )
+            path = export_term_csv(args.term, mode=mode,
+                                   class_filter=args.class_filter,
+                                   student_id=args.student)
             print(f"\n✓ CSV exported → {path}")
         except ValueError as e:
             print(f"✗ {e}", file=sys.stderr)
+            sys.exit(1)
+
+    if args.pdf:
+        try:
+            from pdf_report import export_pdf
+            path = export_pdf(args.term, mode=mode,
+                              class_filter=args.class_filter,
+                              student_id=args.student)
+            print(f"✓ PDF exported → {path}")
+        except Exception as e:
+            print(f"✗ PDF error: {e}", file=sys.stderr)
             sys.exit(1)
 
 def build_parser():
@@ -143,6 +150,7 @@ def build_parser():
     p.add_argument("--student", help="Single student ID (overrides --class)")
 
     p.add_argument("--export-csv", action="store_true")
+    p.add_argument("--pdf", action="store_true", help="Also export a PDF report")
     p.set_defaults(func=cmd_report)
 
     return parser
