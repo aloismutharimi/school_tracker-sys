@@ -15,7 +15,7 @@
             <nav>
                 <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Dashboard</a>
                 <a href="{{ url_for('students') }}" class="{% if request.endpoint == 'students' %}active{% endif %}">Students</a>
-                <a href="{{ url_for('add_student') }}" class="{% if request.endpoint == 'add_student' %}active{% endif %}">Add Student</a>
+                <a href="{{ url_for('add_student_view') }}" class="{% if request.endpoint == 'add_student_view' %}active{% endif %}">Add Student</a>
                 <a href="{{ url_for('add_payment') }}" class="{% if request.endpoint == 'add_payment' %}active{% endif %}">Payments</a>
                 <a href="{{ url_for('add_score') }}" class="{% if request.endpoint == 'add_score' %}active{% endif %}">Scores</a>
                 <a href="{{ url_for('reports') }}" class="{% if request.endpoint == 'reports' %}active{% endif %}">Reports</a>
