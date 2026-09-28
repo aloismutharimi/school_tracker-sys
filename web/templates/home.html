@@ -1,12 +1,141 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>School Tracker</title>
-</head>
-<body>
-    <h1>School Fees &amp; Results Tracker</h1>
-    <p>Students on record: {{ student_count }}</p>
-    <p><a href="/health">Health check</a></p>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Dashboard · School Tracker{% endblock %}
+
+{% block content %}
+    <h1>Dashboard</h1>
+    <p class="page-sub">School overview for {{ term }}</p>
+
+    <div class="card-grid">
+        <div class="stat">
+            <div class="label">Students</div>
+            <div class="value">{{ total_students }}</div>
+        </div>
+        <div class="stat">
+            <div class="label">Total billed</div>
+            <div class="value">{{ "{:,.0f}".format(total_billed) }}</div>
+        </div>
+        <div class="stat">
+            <div class="label">Collected</div>
+            <div class="value accent">{{ "{:,.0f}".format(total_collected) }}</div>
+        </div>
+        <div class="stat">
+            <div class="label">Outstanding</div>
+            <div class="value {% if total_outstanding > 0 %}warn{% endif %}">
+                {{ "{:,.0f}".format(total_outstanding) }}
+            </div>
+        </div>
+        <div class="stat">
+            <div class="label">In arrears</div>
+            <div class="value {% if arrears_count > 0 %}warn{% endif %}">
+                {{ arrears_count }}
+            </div>
+        </div>
+    </div>
+
+    {% if classes %}
+    <h2>🏆 Top performers by class</h2>
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Top student</th>
+                    <th>Average</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in classes %}
+                <tr>
+                    <td><strong>{{ c.name }}</strong></td>
+                    <td>
+                        {% if c.top_performer %}
+                            {{ c.top_performer.name }}
+                        {% else %}
+                            <span style="color:#64748b;">No scores yet</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if c.top_performer %}
+                            <span style="color:#4ade80;font-weight:700;">{{ c.top_performer.average }}%</span>
+                        {% else %}
+                            <span style="color:#64748b;">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    {% if top_performer %}
+    <h2>🥇 Overall top performer</h2>
+    <div class="card" style="background:linear-gradient(135deg, rgba(74,139,183,0.12), rgba(74,222,128,0.08)); border-color:rgba(74,222,128,0.25);">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div>
+            <div style="font-size:1.4rem;font-weight:700;color:#fff;">
+                {{ top_performer.name }}
+            </div>
+            <div style="color:#94a3b8;font-size:0.9rem;margin-top:0.2rem;">
+                {{ top_performer.class }}
+            </div>
+        </div>
+        <div style="font-size:2rem;font-weight:700;color:#4ade80;">
+            {{ top_performer.average }}%
+        </div>
+    </div>
+    </div>
+    {% endif %}
+    <h2>Classes</h2>
+    {% if classes %}
+        <div class="card" style="padding:0;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Students</th>
+                        <th>Billed</th>
+                        <th>Collected</th>
+                        <th>Outstanding</th>
+                        <th>Arrears</th>
+                        <th>Average</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in classes %}
+                    <tr>
+                        <td><strong>{{ c.name }}</strong></td>
+                        <td>{{ c.student_count }}</td>
+                        <td>{{ "{:,.0f}".format(c.billed) }}</td>
+                        <td style="color:#4ade80;">{{ "{:,.0f}".format(c.collected) }}</td>
+                        <td class="{% if c.outstanding > 0 %}" style="color:#f87171;">{% else %}">{% endif %}
+                            {{ "{:,.0f}".format(c.outstanding) }}
+                        </td>
+                        <td>
+                            {% if c.arrears > 0 %}
+                                <span class="badge warn">{{ c.arrears }}</span>
+                            {% else %}
+                                <span class="badge ok">0</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.average %}
+                                {{ c.average }}%
+                            {% else %}
+                                <span style="color:#64748b;">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="card">
+            <p class="empty">No students on record yet. Add one to get started.</p>
+            <div style="text-align:center;margin-top:1rem;">
+                <a href="{{ url_for('add_student') }}" class="btn">Add Student</a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

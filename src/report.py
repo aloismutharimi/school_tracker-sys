@@ -323,3 +323,80 @@ def export_term_csv(term, mode="full", class_filter=None, student_id=None):
                                "average", "rank"] if c in merged.columns]
 
     return export_csv(filename, rows, fieldnames)
+
+def build_dashboard_data(term):
+    """
+    Return a dict with school-wide stats and per-class breakdown.
+    Used by the web dashboard.
+    """
+    students = load_json("students.json")
+    if not students:
+        return {
+            "total_students": 0,
+            "total_billed": 0,
+            "total_collected": 0,
+            "total_outstanding": 0,
+            "arrears_count": 0,
+            "top_performer": None,
+            "classes": [],
+        }
+
+    finance = build_finance_table(term, students)
+    perf = build_performance_table(term, students)
+
+    # School-wide totals
+    total_billed = float(finance["due"].sum()) if not finance.empty else 0
+    total_collected = float(finance["paid"].sum()) if not finance.empty else 0
+    total_outstanding = float(finance["balance"].sum()) if not finance.empty else 0
+    arrears_count = int(finance["in_arrears"].sum()) if not finance.empty else 0
+
+    # Top performer across the whole school
+    top_performer = None
+    if not perf.empty:
+        top = perf.sort_values("average", ascending=False).iloc[0]
+        top_performer = {
+            "name": top["name"],
+            "class": top["class"],
+            "average": round(float(top["average"]), 1),
+        }
+
+    # Per-class breakdown
+    classes = []
+    grouped = {}
+    for s in students:
+        grouped.setdefault(s["class"], []).append(s)
+
+    for class_name in sorted(grouped.keys()):
+        class_students = grouped[class_name]
+        c_finance = build_finance_table(term, class_students)
+        c_perf = build_performance_table(term, class_students)
+
+        # Top performer within this class
+        class_top = None
+        if not c_perf.empty:
+            top = c_perf.sort_values("average", ascending=False).iloc[0]
+            class_top = {
+                "name": top["name"],
+                "average": round(float(top["average"]), 1),
+            }
+
+        classes.append({
+            "name": class_name,
+            "student_count": len(class_students),
+            "billed": float(c_finance["due"].sum()) if not c_finance.empty else 0,
+            "collected": float(c_finance["paid"].sum()) if not c_finance.empty else 0,
+            "outstanding": float(c_finance["balance"].sum()) if not c_finance.empty else 0,
+            "arrears": int(c_finance["in_arrears"].sum()) if not c_finance.empty else 0,
+            "average": round(float(c_perf["average"].mean()), 1) if not c_perf.empty else None,
+            "top_performer": class_top,
+        })
+
+    return {
+        "total_students": len(students),
+        "total_billed": total_billed,
+        "total_collected": total_collected,
+        "total_outstanding": total_outstanding,
+        "arrears_count": arrears_count,
+        "top_performer": top_performer,
+        "classes": classes,
+    }

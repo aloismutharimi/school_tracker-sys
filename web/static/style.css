@@ -1,0 +1,287 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0b1a2e;
+    color: #e8edf2;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---- Header ---- */
+/* ---- Header ---- */
+header {
+    background: rgba(15, 30, 52, 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(74, 139, 183, 0.15);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+header .brand {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 0 20px rgba(74, 139, 183, 0.3);
+    letter-spacing: -0.3px;
+    padding-bottom: 3px;
+    border-bottom: 2px solid #4a8bb7;
+    transition: 0.15s;
+}
+
+header .brand:hover {
+    border-bottom-color: #6aabe0;
+}
+
+nav {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+nav a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    transition: 0.15s;
+}
+
+nav a:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+nav a.active {
+    color: #4a8bb7;
+    background: rgba(74, 139, 183, 0.12);
+}
+
+/* ---- Main ---- */
+main {
+    flex: 1;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+}
+
+h1 { font-size: 1.6rem; color: #fff; margin-bottom: 0.4rem; }
+h2 { font-size: 1.15rem; color: #fff; margin: 1.8rem 0 0.8rem; }
+
+.page-sub {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+/* ---- Cards ---- */
+.card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+}
+
+.stat .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #94a3b8;
+    margin-bottom: 0.4rem;
+}
+
+.stat .value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.stat .value.accent { color: #4ade80; }
+.stat .value.warn { color: #f87171; }
+
+/* ---- Tables ---- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+thead { background: rgba(255, 255, 255, 0.04); }
+
+th {
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+td {
+    padding: 0.7rem 0.9rem;
+    color: #e8edf2;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+.empty {
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+    padding: 2rem !important;
+}
+
+/* ---- Badges ---- */
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge.ok {
+    background: rgba(74, 222, 128, 0.15);
+    color: #4ade80;
+}
+
+.badge.warn {
+    background: rgba(248, 113, 113, 0.15);
+    color: #f87171;
+}
+
+/* ---- Buttons ---- */
+.btn {
+    display: inline-block;
+    background: #fff;
+    color: #0b1a2e;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.15s;
+    font-family: inherit;
+}
+
+.btn:hover { background: #e8edf2; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn.secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e8edf2;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn.secondary:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* ---- Forms ---- */
+.form-grid { display: flex; flex-direction: column; gap: 1.2rem; max-width: 480px; }
+
+.field { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.field input, .field select {
+    padding: 0.7rem 1rem;
+    font-size: 0.95rem;
+    border: 1.5px solid #2b4a66;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-family: inherit;
+    transition: 0.15s;
+}
+
+.field input::placeholder { color: #6a8aa8; }
+
+.field input:focus, .field select:focus {
+    outline: none;
+    border-color: #4a8bb7;
+    box-shadow: 0 0 0 3px rgba(74, 139, 183, 0.15);
+}
+
+.form-actions { display: flex; gap: 0.8rem; margin-top: 0.5rem; }
+
+/* ---- Alerts ---- */
+.alert {
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+}
+
+.alert.success {
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+    color: #4ade80;
+}
+
+.alert.error {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    color: #f87171;
+}
+
+/* ---- Footer ---- */
+footer {
+    padding: 1.5rem 2rem;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.8rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+    main { padding: 1.5rem 1rem; }
+    header { padding: 1rem; }
+    .stat .value { font-size: 1.3rem; }
+    table { font-size: 0.8rem; }
+    th, td { padding: 0.5rem 0.6rem; }
+}
