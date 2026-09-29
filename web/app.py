@@ -7,6 +7,8 @@ from tracker import (
     get_student,
     compute_balance,
     add_student as add_student_record,
+    record_payment as record_payment_record,
+    record_score as record_score_record,
 )
 from report import (
     build_finance_table,
@@ -118,19 +120,185 @@ def _known_classes():
     return merged
 
 
-@app.route("/payments/new")
+@app.route("/payments/new", methods=["GET", "POST"])
 def add_payment():
-    return render_template("placeholder.html", page="Record Payment")
+    term = "2026-T1"
+    all_students = sorted(list_students(), key=lambda s: (s["class"], s["name"]))
+
+    if request.method == "POST":
+        student_id = request.form.get("student_id", "").strip()
+        amount = request.form.get("amount", "").strip()
+        method = request.form.get("method", "cash").strip()
+        payment_date = request.form.get("date", "").strip() or None
+
+        errors = []
+        if not student_id:
+            errors.append("Please select a student.")
+        if not amount:
+            errors.append("Amount is required.")
+        else:
+            try:
+                amount_val = float(amount)
+                if amount_val <= 0:
+                    errors.append("Amount must be greater than zero.")
+            except ValueError:
+                errors.append("Amount must be a number.")
+
+        if errors:
+            for e in errors:
+                flash(e, "error")
+            return render_template(
+                "add_payment.html",
+                students=all_students,
+                form={"student_id": student_id, "amount": amount,
+                      "method": method, "date": payment_date or ""},
+                recent=_recent_payments(term),
+                term=term,
+            )
+
+        try:
+            record_payment_record(
+                student_id, term, float(amount), method, payment_date
+            )
+            student = get_student(student_id)
+            flash(f"Recorded {float(amount):,.0f} from {student['name']}",
+                  "success")
+            # Stay on the form — clear the amount so they can enter the next one
+            return render_template(
+                "add_payment.html",
+                students=all_students,
+                form={"student_id": "", "amount": "", "method": "cash", "date": ""},
+                recent=_recent_payments(term),
+                term=term,
+            )
+        except ValueError as e:
+            flash(str(e), "error")
+            return render_template(
+                "add_payment.html",
+                students=all_students,
+                form={"student_id": student_id, "amount": amount,
+                      "method": method, "date": payment_date or ""},
+                recent=_recent_payments(term),
+                term=term,
+            )
+
+    # GET
+    return render_template(
+        "add_payment.html",
+        students=all_students,
+        form={"student_id": "", "amount": "", "method": "cash", "date": ""},
+        recent=_recent_payments(term),
+        term=term,
+    )
 
 
-@app.route("/scores/new")
+@app.route("/scores/new", methods=["GET", "POST"])
 def add_score():
-    return render_template("placeholder.html", page="Record Score")
+    term = "2026-T1"
+    all_students = sorted(list_students(), key=lambda s: (s["class"], s["name"]))
+    subjects = ["Mathematics", "English", "Kiswahili", "Science", "Social Studies", "CRE"]
+
+    if request.method == "POST":
+        student_id = request.form.get("student_id", "").strip()
+        subject = request.form.get("subject", "").strip()
+        score = request.form.get("score", "").strip()
+
+        errors = []
+        if not student_id:
+            errors.append("Please select a student.")
+        if not subject:
+            errors.append("Subject is required.")
+        if not score:
+            errors.append("Score is required.")
+        else:
+            try:
+                score_val = float(score)
+                if score_val < 0 or score_val > 100:
+                    errors.append("Score must be between 0 and 100.")
+            except ValueError:
+                errors.append("Score must be a number.")
+
+        if errors:
+            for e in errors:
+                flash(e, "error")
+            return render_template(
+                "add_score.html",
+                students=all_students,
+                subjects=subjects,
+                form={"student_id": student_id, "subject": subject, "score": score},
+                recent=_recent_scores(term),
+                term=term,
+            )
+
+        try:
+            record_score_record(student_id, term, subject, float(score))
+            student = get_student(student_id)
+            flash(f"Recorded {subject} {float(score):.0f} for {student['name']}",
+                  "success")
+            return render_template(
+                "add_score.html",
+                students=all_students,
+                subjects=subjects,
+                form={"student_id": "", "subject": "", "score": ""},
+                recent=_recent_scores(term),
+                term=term,
+            )
+        except ValueError as e:
+            flash(str(e), "error")
+            return render_template(
+                "add_score.html",
+                students=all_students,
+                subjects=subjects,
+                form={"student_id": student_id, "subject": subject, "score": score},
+                recent=_recent_scores(term),
+                term=term,
+            )
+
+    # GET
+    return render_template(
+        "add_score.html",
+        students=all_students,
+        subjects=subjects,
+        form={"student_id": "", "subject": "", "score": ""},
+        recent=_recent_scores(term),
+        term=term,
+    )
 
 
-@app.route("/reports")
-def reports():
-    return render_template("placeholder.html", page="Reports")
+def _recent_payments(term, limit=5):
+    """Return the last N payments for the given term, newest first."""
+    payments = load_json("payments.json")
+    filtered = [p for p in payments if p["term"] == term]
+    filtered = filtered[-limit:]
+    filtered.reverse()
+    students = {s["id"]: s for s in list_students()}
+    return [
+        {
+            "student_name": students.get(p["student_id"], {}).get("name", "?"),
+            "amount": p["amount"],
+            "method": p["method"],
+            "date": p["date"],
+        }
+        for p in filtered
+    ]
+
+
+def _recent_scores(term, limit=5):
+    """Return the last N scores for the given term, newest first."""
+    scores = load_json("scores.json")
+    filtered = [s for s in scores if s["term"] == term]
+    filtered = filtered[-limit:]
+    filtered.reverse()
+    students = {s["id"]: s for s in list_students()}
+    return [
+        {
+            "student_name": students.get(s["student_id"], {}).get("name", "?"),
+            "subject": s["subject"],
+            "score": s["score"],
+            "out_of": s["out_of"],
+        }
+        for s in filtered
+    ]
 
 
 @app.route("/health")

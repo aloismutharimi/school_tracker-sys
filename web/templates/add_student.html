@@ -23,7 +23,7 @@
             <div class="field">
                 <label for="class">Class <span style="color:#f87171;">*</span></label>
                 <input type="text" id="class" name="class" list="class-options"
-                       placeholder="e.g. Form 2" value="{{ form.class }}" required>
+                       placeholder="e.g. Grade 1" value="{{ form.class }}" required>
                 <datalist id="class-options">
                     {% for c in classes %}
                         <option value="{{ c }}">
@@ -33,7 +33,7 @@
 
             <div class="field">
                 <label for="phone">Guardian Phone</label>
-                <input type="tel" id="phone" name="phone" placeholder="e.g. +254712345001"
+                <input type="tel" id="phone" name="phone" placeholder="e.g. 0712345001"
                        value="{{ form.phone }}">
             </div>
 

@@ -236,6 +236,25 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
     color: #fff;
     font-family: inherit;
     transition: 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Force dark background on the dropdown list itself */
+.field select option {
+    background: #0f1e34;
+    color: #e8edf2;
+    padding: 0.5rem;
+}
+
+/* Custom dropdown arrow (since we removed the native one) */
+.field select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+    cursor: pointer;
 }
 
 .field input::placeholder { color: #6a8aa8; }
@@ -250,26 +269,67 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
 
 /* ---- Alerts ---- */
 .alert {
-    padding: 0.8rem 1rem;
-    border-radius: 10px;
-    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    animation: slideDown 0.3s ease-out;
+    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.2);
+}
+
+.alert-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
     font-size: 0.9rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.alert-text {
+    flex: 1;
+    line-height: 1.4;
 }
 
 .alert.success {
-    background: rgba(74, 222, 128, 0.1);
-    border: 1px solid rgba(74, 222, 128, 0.25);
+    background: rgba(74, 222, 128, 0.15);
+    border: 1px solid rgba(74, 222, 128, 0.4);
     color: #4ade80;
 }
 
+.alert.success .alert-icon {
+    background: #4ade80;
+    color: #0b1a2e;
+}
+
 .alert.error {
-    background: rgba(248, 113, 113, 0.1);
-    border: 1px solid rgba(248, 113, 113, 0.25);
+    background: rgba(248, 113, 113, 0.15);
+    border: 1px solid rgba(248, 113, 113, 0.4);
     color: #f87171;
 }
 
-.amount-warn { color: #f87171; font-weight: 600; }
-.amount-ok { color: #4ade80; font-weight: 600; }
+.alert.error .alert-icon {
+    background: #f87171;
+    color: #0b1a2e;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 /* ---- Footer ---- */
 footer {
