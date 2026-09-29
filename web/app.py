@@ -113,7 +113,7 @@ def _known_classes():
     students = list_students()
     classes = sorted({s["class"] for s in students})
     # Always offer common defaults even if no students yet
-    defaults = ["Form 1", "Form 2", "Form 3", "Form 4"]
+    defaults = ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6"]
     merged = sorted(set(classes) | set(defaults))
     return merged
 
