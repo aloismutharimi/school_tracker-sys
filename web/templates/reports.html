@@ -41,7 +41,7 @@
                 </div>
             </div>
 
-            <div class="form-actions">
+            <div class="form-actions" style="justify-content:center;">
                 <button type="submit" class="btn">Generate Report</button>
                 <a href="{{ url_for('reports') }}" class="btn secondary">Reset</a>
             </div>
@@ -167,10 +167,25 @@
             </div>
         {% endif %}
 
-        {# --- Download actions (Step 8 will make these work) --- #}
-        <div class="form-actions" style="margin-top:1.5rem;">
-            <button type="button" class="btn secondary" disabled>Download CSV (coming next)</button>
-            <button type="button" class="btn secondary" disabled>Download PDF (coming next)</button>
-        </div>
+{% set query_base = "mode=" ~ form.mode %}
+{% if form.class_filter %}
+    {% set query_base = query_base ~ "&class=" ~ form.class_filter|urlencode %}
+{% endif %}
+{% if form.student_id %}
+    {% set query_base = query_base ~ "&student=" ~ form.student_id|urlencode %}
+{% endif %}
+
+<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:2rem 0 1rem;">
+
+<div class="form-actions" style="margin-top:1.5rem;justify-content:center;">
+    <a href="{{ url_for('reports_download') }}?format=csv&{{ query_base }}"
+       class="btn secondary">
+        ⬇ Download CSV
+    </a>
+    <a href="{{ url_for('reports_download') }}?format=pdf&{{ query_base }}"
+       class="btn secondary">
+        ⬇ Download PDF
+    </a>
+</div>
     {% endif %}
 {% endblock %}

@@ -1,6 +1,8 @@
 import _paths  # noqa: F401 — sets up sys.path before other imports
+import os
 
-from flask import Flask, render_template, request, flash, redirect, url_for
+
+from flask import Flask, render_template, request, flash, redirect, url_for, send_file
 from storage import load_json
 from tracker import (
     list_students,
@@ -416,6 +418,54 @@ def _build_report_view(term, mode, students, student_id=None, class_filter=None)
         result["title"] = "Full School Report"
 
     return result
+
+@app.route("/reports/download")
+def reports_download():
+    term = "2026-T1"
+    fmt = request.args.get("format", "csv").lower()
+    mode = request.args.get("mode", "full")
+    class_filter = request.args.get("class", "").strip() or None
+    student_id = request.args.get("student", "").strip() or None
+
+    if fmt not in ("csv", "pdf"):
+        flash("Invalid download format.", "error")
+        return redirect(url_for("reports"))
+
+    try:
+        if fmt == "csv":
+            from report import export_term_csv
+            path = export_term_csv(
+                term, mode=mode,
+                class_filter=class_filter,
+                student_id=student_id,
+            )
+        else:
+            from pdf_report import export_pdf
+            path = export_pdf(
+                term, mode=mode,
+                class_filter=class_filter,
+                student_id=student_id,
+            )
+    except ValueError as e:
+        flash(str(e), "error")
+        return redirect(url_for("reports"))
+
+    if not os.path.exists(path):
+        flash("File could not be generated.", "error")
+        return redirect(url_for("reports"))
+
+    # Build a nice download filename (in case the file was timestamped)
+    filename = os.path.basename(path)
+
+    return send_file(
+        path,
+        as_attachment=True,
+        download_name=filename,
+        mimetype=(
+            "text/csv" if fmt == "csv"
+            else "application/pdf"
+        ),
+    )
 
 @app.route("/health")
 def health():
