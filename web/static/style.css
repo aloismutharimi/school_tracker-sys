@@ -331,6 +331,12 @@ tr:hover td { background: rgba(255, 255, 255, 0.02); }
     }
 }
 
+@media (max-width: 700px) {
+    form[method="POST"] .form-grid > div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
 /* ---- Footer ---- */
 footer {
     padding: 1.5rem 2rem;

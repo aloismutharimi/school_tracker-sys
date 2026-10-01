@@ -300,6 +300,122 @@ def _recent_scores(term, limit=5):
         for s in filtered
     ]
 
+@app.route("/reports", methods=["GET", "POST"])
+def reports():
+    term = "2026-T1"
+    all_students = list_students()
+
+    # Available filters for the dropdowns
+    classes = sorted({s["class"] for s in all_students})
+    students_sorted = sorted(all_students, key=lambda s: (s["class"], s["name"]))
+
+    # Default form state
+    form = {
+        "mode": "full",
+        "class_filter": "",
+        "student_id": "",
+    }
+
+    report_data = None
+
+    if request.method == "POST":
+        form["mode"] = request.form.get("mode", "full")
+        form["class_filter"] = request.form.get("class_filter", "").strip()
+        form["student_id"] = request.form.get("student_id", "").strip()
+
+        # Determine which students the report covers
+        if form["student_id"]:
+            target_students = [s for s in all_students if s["id"] == form["student_id"]]
+        elif form["class_filter"]:
+            target_students = [s for s in all_students if s["class"] == form["class_filter"]]
+        else:
+            target_students = all_students
+
+        if not target_students:
+            flash("No students match the given filters.", "error")
+        else:
+            report_data = _build_report_view(
+                term, form["mode"], target_students,
+                student_id=form["student_id"] or None,
+                class_filter=form["class_filter"] or None,
+            )
+
+    return render_template(
+        "reports.html",
+        term=term,
+        classes=classes,
+        students=students_sorted,
+        form=form,
+        report=report_data,
+    )
+
+def _build_report_view(term, mode, students, student_id=None, class_filter=None):
+    """
+    Build the data structure the reports template renders.
+    Uses the same builders as the CLI so numbers always match.
+    """
+    from report import (
+        build_finance_table,
+        build_performance_table,
+        build_student_scores,
+        get_student_rank,
+    )
+
+    result = {
+        "mode": mode,
+        "student_id": student_id,
+        "class_filter": class_filter,
+        "fees": None,
+        "performance": None,
+        "scores": None,
+        "student_meta": None,
+        "title": "Report",
+    }
+
+    # Solo student report
+    if student_id:
+        s = get_student(student_id)
+        result["student_meta"] = {"name": s["name"], "class": s["class"], "id": s["id"]}
+        result["title"] = f"Student Report — {s['name']}"
+
+        if mode in ("fees", "full"):
+            df = build_finance_table(term, students)
+            if not df.empty:
+                result["fees"] = df.to_dict(orient="records")
+
+        if mode in ("grades", "full"):
+            rank, total = get_student_rank(student_id, term)
+            result["rank"] = rank
+            result["rank_total"] = total
+
+            perf_df = build_performance_table(term, students)
+            if not perf_df.empty:
+                result["performance"] = perf_df.to_dict(orient="records")
+
+            scores_df = build_student_scores(student_id, term)
+            if not scores_df.empty:
+                result["scores"] = scores_df.to_dict(orient="records")
+
+        return result
+
+    # Class or full report
+    if mode in ("fees", "full"):
+        df = build_finance_table(term, students)
+        if not df.empty:
+            result["fees"] = df.to_dict(orient="records")
+
+    if mode in ("grades", "full"):
+        df = build_performance_table(term, students)
+        if not df.empty:
+            result["performance"] = df.to_dict(orient="records")
+
+    # Title reflects scope
+    if class_filter:
+        result["title"] = f"Class Report — {class_filter}"
+    else:
+        result["title"] = "Full School Report"
+
+    return result
 
 @app.route("/health")
 def health():
