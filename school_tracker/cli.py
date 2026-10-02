@@ -1,9 +1,8 @@
 import argparse
 import sys
-from tracker import add_student, record_payment, record_score, list_students
-from report import print_term_report, export_term_csv
-from storage import import_students_csv
-
+from .tracker import add_student, record_payment, record_score, list_students
+from .report import print_term_report, export_term_csv
+from .storage import import_students_csv
 
 def cmd_add_student(args):
     try:
@@ -154,7 +153,6 @@ def build_parser():
     p.set_defaults(func=cmd_report)
 
     return parser
-
 
 def main():
     parser = build_parser()

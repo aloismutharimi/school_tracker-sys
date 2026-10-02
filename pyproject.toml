@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "school-tracker"
+version = "0.1.0"
+description = "A CLI tool for tracking school fees, payments, and exam scores"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "reportlab",
+]
+
+[project.scripts]
+school-tracker = "school_tracker.cli:main"
+
+[tool.setuptools]
+packages = ["school_tracker"]

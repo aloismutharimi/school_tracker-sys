@@ -7,9 +7,9 @@ from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 )
 
-from storage import load_json, REPORTS_DIR
-from tracker import get_student
-from report import (
+from .storage import load_json, REPORTS_DIR
+from .tracker import get_student
+from .report import (
     build_finance_table, build_performance_table,
     build_student_scores, get_student_rank,
 )

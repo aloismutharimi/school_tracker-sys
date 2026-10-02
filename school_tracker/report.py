@@ -1,6 +1,6 @@
 import pandas as pd
-from storage import load_json, export_csv
-from tracker import compute_balance, get_student
+from .storage import load_json, export_csv
+from .tracker import compute_balance, get_student
 
 
 def _filter_students(students, class_filter=None, student_id=None):

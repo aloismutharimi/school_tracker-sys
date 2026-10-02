@@ -1,5 +1,5 @@
 from datetime import date
-from storage import load_json, save_json
+from .storage import load_json, save_json
 
 
 def add_student(student_id, name, student_class, guardian_phone=""):
