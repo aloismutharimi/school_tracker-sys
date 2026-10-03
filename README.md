@@ -1,6 +1,6 @@
 # School Fees & Results Tracker 🎓
 
-A command-line tool that stores student payments, balances, and exam scores — then generates a ranked term report with arrears flags and a CSV export.
+A command-line tool that stores student payments, balances, and exam scores — then generates term reports with arrears flags, class rankings, and CSV/PDF export.
 
 Built for small schools and tutoring centers still tracking fees and grades by hand.
 
@@ -8,14 +8,28 @@ Built for small schools and tutoring centers still tracking fees and grades by h
 
 ## What It Does
 
-- **Manages students** — add individually or bulk-import from CSV
-- **Records payments** — amount, term, method (cash / mpesa / bank)
-- **Records exam scores** — per subject, per term
-- **Computes balances** — fees due, paid, outstanding, arrears status
-- **Ranks students** — average score and class rank per term
-- **Generates reports** — formatted terminal output + CSV export for Excel
+**Manages records**
+- Add students individually or bulk-import from CSV
+- Record fee payments — amount, term, method (cash / mpesa / bank)
+- Record exam scores — per subject, per term
+- Store everything as plain JSON
 
-All data stored as plain JSON. No database, no server, no subscription.
+**Computes and reports**
+- Fees due, paid, outstanding, and arrears status per student
+- Class rank by average score — always within class, never across
+- Term reports in five modes:
+
+| Mode | Command | Output |
+|---|---|---|
+| Full report | `--full` (default) | All classes, fees + grades, per-class and school summaries |
+| Fees only | `--fees` | Balances and arrears only |
+| Grades only | `--grades` | Rankings and averages only |
+| Per class | `--class "Grade 2"` | One class in detail |
+| Solo student | `--student STU001` | One student — fees, rank in class, subject breakdown |
+
+- Export to CSV and PDF
+
+No database. No server. No subscription.
 
 ---
 
@@ -27,104 +41,109 @@ Small school administrators track fees and grades in paper ledgers or scattered 
 - No fast way to rank students by performance
 - Term reports that take hours to assemble
 
-This tool replaces the manual process with three commands: record, compute, report. It runs anywhere Python runs, keeps data human-readable, and exports to formats admins already use.
-
-Built as a demonstration that **practical internal tools don't need a web app** — a well-structured CLI can solve a real operational problem in under 500 lines.
+This tool replaces the manual process with a handful of commands. It runs anywhere Python runs, keeps data human-readable, and exports to formats admins already use.
 
 ---
 
-## How to Run It
+## Installation
 
-### 1. Install
+### 1. Install the package
 
 ```bash
-git clone https://github.com/aloismutharimi/school_tracker-sys.git
-cd school_tracker-sys
-pip install -r requirements.txt
+pip install git+https://github.com/aloismutharimi/school_tracker-sys.git
 ```
 
-Requires Python 3.10+. Only external dependency is pandas.
+Requires **Python 3.10+**.
 
-### 2. Set up the fee schedule
+### 2. Data is created automatically
 
-Edit `data/fees.json`:
+On first run, the tool creates a `data/` folder in your current working directory, seeded with:
+
+- `students.json`, `payments.json`, `scores.json` — empty
+- `fees.json` — a starter fee schedule (edit this to match your school)
+
+You don't need to create any files manually. Just run any command, and the tool sets up the folder.
+
+### 3. Set your fee schedule
+
+Edit `data/fees.json` to match your school's fees:
 
 ```json
 [
-  { "class": "Form 1", "term": "2026-T1", "amount": 25000 }
+  { "class": "Grade 1", "term": "2026-T1", "amount": 500 },
+  { "class": "Grade 2", "term": "2026-T1", "amount": 7000 },
+  { "class": "Grade 3", "term": "2026-T1", "amount": 9000 },
+  { "class": "Grade 4", "term": "2026-T1", "amount": 1100 },
+  { "class": "Grade 5", "term": "2026-T1", "amount": 12000 },
+  { "class": "Grade 6", "term": "2026-T1", "amount": 13000 }
 ]
 ```
 
-### 3. Run commands
+### Data location
 
-All commands run from ``src/:``
+By default, data lives in `./data/` — relative to wherever you run the command.
 
-```bash
-cd src
-```
-Add a student:
-```bash
-python cli.py add-student --id STU001 --name "Wanjiku Kamau" --class "Form 2" --phone "+254712345001"
-```
-Bulk import from CSV:
-```bash
-python cli.py import-students --csv ../students-bulk.csv
-CSV format: id, name, class, guardian_phone
-```
-Record a payment:
-```bash
-python cli.py record-payment --id STU001 --term 2026-T1 --amount 15000 --method mpesa
-```
-Record a score:
-```bash
-python cli.py record-score --id STU001 --term 2026-T1 --subject Mathematics --score 78
-```
-List all students:
-```bash
-python cli.py list-students
-```
-
-Report Modes
-Every report runs against a term and can be scoped to a class or a single student.
+To use a fixed location, set an environment variable:
 
 ```bash
-# Full report — all classes, fees + grades, per-class and school summaries
-python cli.py report --term 2026-T1
+export SCHOOL_TRACKER_DATA=/path/to/your/data      # macOS/Linux
+set SCHOOL_TRACKER_DATA=D:\school_data             # Windows
+```
+
+---
+
+## Usage
+
+Run commands from anywhere once installed:
+
+```bash
+# Add a student
+school-tracker add-student --id STU001 --name "Wanjiku Kamau" --class "Grade 2" --phone "+254712345001"
+
+# Bulk import from CSV
+school-tracker import-students --csv students-bulk.csv
+
+# Record a payment
+school-tracker record-payment --id STU001 --term 2026-T1 --amount 5000 --method mpesa
+
+# Record a score
+school-tracker record-score --id STU001 --term 2026-T1 --subject Mathematics --score 78
+
+# List all students
+school-tracker list-students
+```
+
+### Report modes
+
+```bash
+# Full report (default) — all classes, broken down per class
+school-tracker report --term 2026-T1
 
 # Fees only
-python cli.py report --term 2026-T1 --fees
+school-tracker report --term 2026-T1 --fees
 
 # Grades only
-python cli.py report --term 2026-T1 --grades
+school-tracker report --term 2026-T1 --grades
 
 # One class
-python cli.py report --term 2026-T1 --class "Form 2"
+school-tracker report --term 2026-T1 --class "Grade 2"
 
-# One student — includes rank against their class and subject breakdown
-python cli.py report --term 2026-T1 --student STU001
+# One student
+school-tracker report --term 2026-T1 --student STU001
 
-# Add --export-csv to any of the above
-python cli.py report --term 2026-T1 --export-csv
+# Export CSV
+school-tracker report --term 2026-T1 --export-csv
+
+# Export PDF
+school-tracker report --term 2026-T1 --pdf
 ```
-**Export as PDF:**
 
-```bash
-# Solo student — the report a guardian receives
-python cli.py report --term 2026-T1 --student STU001 --pdf
-
-# Full school — broken down by class
-python cli.py report --term 2026-T1 --pdf
-
-# One class
-python cli.py report --term 2026-T1 --class "Form 2" --pdf
-
-# Both formats at once
-python cli.py report --term 2026-T1 --student STU001 --export-csv --pdf
-```
-Reports are printed to the terminal. ```--export-csv``` writes a flat, merged CSV to ``reports/`` that opens directly in Excel.
+---
 
 ## What the Output Looks Like
+
 ### Full report (default)
+
 Broken down by class, with per-class summaries and a school-wide summary at the end:
 
 ```text
@@ -132,24 +151,24 @@ Broken down by class, with per-class summaries and a school-wide summary at the 
   TERM REPORT — 2026-T1
 ================================================================================
 ================================================================================
-  FORM 1
+  GRADE 1
 ================================================================================
 
 SECTION: FEES & BALANCES
 
   Student Name         Class          Due      Paid   Balance  Status
   -------------------- -------- --------- --------- ---------  --------
-  David Ochieng        Form 1      25,000    12,000    13,000  ⚠ ARREARS
-  Fatuma Ali           Form 1      25,000    25,000         0  ✓ CLEARED
-  Mercy Achieng        Form 1      25,000    25,000         0  ✓ CLEARED
+  David Ochieng        Grade 1      25,000    12,000    13,000  ⚠ ARREARS
+  Fatuma Ali           Grade 1      25,000    25,000         0  ✓ CLEARED
+  Mercy Achieng        Grade 1      25,000    25,000         0  ✓ CLEARED
 
 SECTION: PERFORMANCE RANKING
 
   Rank  Student Name         Class     Average
   ----- -------------------- -------- --------
-  #1    Fatuma Ali           Form 1      83.5%
-  #2    Mercy Achieng        Form 1      80.0%
-  #3    David Ochieng        Form 1      56.3%
+  #1    Fatuma Ali           Grade 1      83.5%
+  #2    Mercy Achieng        Grade 1      80.0%
+  #3    David Ochieng        Grade 1      56.3%
 
 SECTION: CLASS SUMMARY
 
@@ -160,7 +179,7 @@ SECTION: CLASS SUMMARY
   Class average:         73.3%
   Top performer:       Fatuma Ali (83.5%)
 
-... (Form 2, Form 3) ...
+... (Grade 2, Grade 3, ...) ...
 
 ================================================================================
   SCHOOL SUMMARY
@@ -173,7 +192,9 @@ SECTION: CLASS SUMMARY
 
 ================================================================================
 ```
+
 ### Solo student report
+
 Shows their rank against their full class, plus a subject-by-subject breakdown:
 
 ```text
@@ -185,7 +206,7 @@ SECTION: FEES & BALANCES
 
   Student Name         Class          Due      Paid   Balance  Status
   -------------------- -------- --------- --------- ---------  --------
-  Amina Hassan         Form 2      28,000    28,000         0  ✓ CLEARED
+  Amina Hassan         Grade 2      28,000    28,000         0  ✓ CLEARED
 
 SECTION: PERFORMANCE
 
@@ -205,37 +226,36 @@ SUBJECT BREAKDOWN
 ```
 
 ### CSV export
+
 Opens directly in Excel:
 
 ```csv
 student_id,name,class,term,due,paid,balance,in_arrears,average,rank
-STU001,Wanjiku Kamau,Form 2,2026-T1,28000.0,28000.0,0.0,False,83.5,2
-STU002,Brian Otieno,Form 2,2026-T1,28000.0,15000.0,13000.0,True,69.5,4
+STU001,Wanjiku Kamau,Grade 2,2026-T1,7000.0,7000.0,0.0,False,83.5,2
+STU002,Brian Otieno,Grade 2,2026-T1,7000.0,3000.0,4000.0,True,69.5,4
 ```
-### PDF export
-
-Opens as a print-ready A4 document with styled tables, page breaks between classes, and a clean header. The solo student PDF is designed to be handed to a guardian — it shows fee status, class rank, and a subject-by-subject breakdown on a single page.
-
-![Sample PDF report](../assets/pdf-sample.png)
 
 ---
+
 ## Architecture
+
 ```text
 school_tracker-sys/
-├── data/                    # JSON source of truth
-│   ├── students.json
-│   ├── payments.json
-│   ├── scores.json
-│   └── fees.json
-├── reports/                 # Generated CSVs
-├── src/
+├── school_tracker/          # the Python package
+│   ├── __init__.py
 │   ├── storage.py           # File I/O — JSON + CSV
 │   ├── tracker.py           # Business logic — students, payments, balances
-│   ├── report.py            # Aggregation, ranking, terminal formatting
+│   ├── report.py            # Aggregation, ranking, formatting
 │   ├── pdf_report.py        # PDF generation via ReportLab
-│   └── cli.py               # Command-line interface
-├── students-bulk.csv        # Sample bulk-import file
-├── requirements.txt
+│   ├── cli.py               # Command-line interface
+│   └── data_seed/           # Starter data templates (shipped with package)
+│       ├── students.json
+│       ├── payments.json
+│       ├── scores.json
+│       └── fees.json
+├── data/                    # Local runtime data (ignored by Git)
+├── reports/                 # Generated CSVs and PDFs
+├── pyproject.toml
 └── README.md
 ```
 
@@ -243,35 +263,26 @@ school_tracker-sys/
 
 | Module | Responsibility |
 |---|---|
-| `storage.py` | Load/save JSON, export CSV, handle locked files |
+| `storage.py` | Load/save JSON, export CSV, bootstrap data on first run |
 | `tracker.py` | Validation, balance computation, term fees |
 | `report.py` | Aggregation, per-class ranking, terminal formatting |
+| `pdf_report.py` | Renders reports as styled A4 PDFs |
 | `cli.py` | Argument parsing, user feedback, exit codes |
-| `pdf_report.py` | Renders reports as styled A4 PDFs via ReportLab |
-
-Each layer only depends on the one below it. `cli.py` never touches files directly — it goes through `tracker` and `report`, which go through `storage`.
 
 ---
 
-## Design Decisions
+## Related Projects
 
-**JSON as source of truth, CSV for exchange.**
-JSON handles nested records and updates cleanly. CSV is what admins already open in Excel. Both, for different purposes.
-
-**Ranking is always within class.**
-A Form 1 student is never ranked against a Form 3 student. Every class gets its own ranking that resets to `#1`.
-
-**Solo student reports rank against the full class.**
-Even when the report shows one student, their rank is computed against every classmate — not against themselves.
-
-**Validation in `tracker.py`, not `storage.py`.**
-Storage does I/O. Business rules ("no duplicate IDs", "student must exist") live in the logic layer.
-
-**Graceful handling of locked CSVs.**
-If Excel has the report open, the tool writes to a timestamped fallback file instead of crashing.
+- **[school_tracker-web](https://github.com/aloismutharimi/school_tracker-web)** — A Flask web interface built on top of this CLI. Same logic, browser-based for non-technical users.
 
 ---
 
 ## Stack
 
-`Python 3.10+` · `Pandas` · `ReportLab` · `argparse` · `pathlib` · `json` · `csv` — no database, no web server
+`Python 3.10+` · `Pandas` · `ReportLab` · `argparse` · `pathlib` · `json` · `csv`
+
+---
+
+## License
+
+MIT

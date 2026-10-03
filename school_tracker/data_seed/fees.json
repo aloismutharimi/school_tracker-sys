@@ -1,8 +1,8 @@
 [
-  { "class": "Grade 1", "term": "2026-T1", "amount": 500 },
+  { "class": "Grade 1", "term": "2026-T1", "amount": 5000 },
   { "class": "Grade 2", "term": "2026-T1", "amount": 7000 },
   { "class": "Grade 3", "term": "2026-T1", "amount": 9000 },
-  { "class": "Grade 4", "term": "2026-T1", "amount": 1100 },
+  { "class": "Grade 4", "term": "2026-T1", "amount": 11000 },
   { "class": "Grade 5", "term": "2026-T1", "amount": 12000 },
   { "class": "Grade 6", "term": "2026-T1", "amount": 13000 }
 ]
