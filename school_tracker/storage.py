@@ -5,6 +5,25 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "data"
 REPORTS_DIR = BASE_DIR / "reports"
+SEED_DIR = BASE_DIR / "data_seed"
+
+
+def _ensure_data_files():
+    """
+    Create data files from seed templates if missing.
+    Runs once on first import of this module.
+    """
+    DATA_DIR.mkdir(exist_ok=True)
+    if not SEED_DIR.exists():
+        return
+    for seed_file in SEED_DIR.glob("*.json"):
+        target = DATA_DIR / seed_file.name
+        if not target.exists():
+            target.write_text(seed_file.read_text())
+
+
+# Bootstrap on import
+_ensure_data_files()
 
 
 def load_json(filename):
