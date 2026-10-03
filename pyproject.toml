@@ -18,3 +18,6 @@ school-tracker = "school_tracker.cli:main"
 
 [tool.setuptools]
 packages = ["school_tracker"]
+
+[tool.setuptools.package-data]
+school_tracker = ["data_seed/*.json"]

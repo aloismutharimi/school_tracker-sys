@@ -1,19 +1,24 @@
 import json
 import csv
+import os
 from pathlib import Path
 
-BASE_DIR = Path(__file__).parent.parent
-DATA_DIR = BASE_DIR / "data"
-REPORTS_DIR = BASE_DIR / "reports"
-SEED_DIR = BASE_DIR / "data_seed"
+# Package location
+PACKAGE_DIR = Path(__file__).parent
+SEED_DIR = PACKAGE_DIR / "data_seed"
+
+# Where the app reads/writes data.
+# Priority:
+# 1. SCHOOL_TRACKER_DATA environment variable (explicit override)
+# 2. ./data in the current working directory (predictable for CLI use)
+_default_data = Path.cwd() / "data"
+DATA_DIR = Path(os.environ.get("SCHOOL_TRACKER_DATA", _default_data))
+REPORTS_DIR = DATA_DIR / "reports"
 
 
 def _ensure_data_files():
-    """
-    Create data files from seed templates if missing.
-    Runs once on first import of this module.
-    """
-    DATA_DIR.mkdir(exist_ok=True)
+    """Create data files from seed templates if missing."""
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     if not SEED_DIR.exists():
         return
     for seed_file in SEED_DIR.glob("*.json"):
