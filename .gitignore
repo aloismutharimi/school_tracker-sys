@@ -2,11 +2,7 @@ assets/
 data/
 reports/
 tests/
-src/__pycache__/pdf_report.cpython-314.pyc
-src/__pycache__/report.cpython-314.pyc
-src/test_report.py
-src/test_storage.py
-src/test_tracker.py
+scripts/test_report.py
 students-bulk.csv
 
 # Python package build artifacts
