@@ -2,7 +2,7 @@ assets/
 data/
 reports/
 tests/
-scripts/test_report.py
+scripts/
 students-bulk.csv
 
 # Python package build artifacts
