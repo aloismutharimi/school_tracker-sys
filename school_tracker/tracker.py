@@ -93,3 +93,45 @@ def compute_balance(student_id, term):
         "balance": due - paid,
         "in_arrears": paid < due,
     }
+
+def update_student(student_id, name=None, student_class=None, guardian_phone=None):
+    """Update a student's details. Returns the updated record."""
+    students = load_json("students.json")
+    student = next((s for s in students if s["id"] == student_id), None)
+    if not student:
+        raise ValueError(f"Unknown student {student_id}")
+
+    if name is not None:
+        student["name"] = name
+    if student_class is not None:
+        student["class"] = student_class
+    if guardian_phone is not None:
+        student["guardian_phone"] = guardian_phone
+
+    save_json("students.json", students)
+    return student
+
+
+def delete_student(student_id, remove_records=True):
+    """
+    Delete a student. If remove_records is True, also delete their
+    payments and scores.
+    """
+    students = load_json("students.json")
+    student = next((s for s in students if s["id"] == student_id), None)
+    if not student:
+        raise ValueError(f"Unknown student {student_id}")
+
+    students = [s for s in students if s["id"] != student_id]
+    save_json("students.json", students)
+
+    if remove_records:
+        payments = load_json("payments.json")
+        payments = [p for p in payments if p["student_id"] != student_id]
+        save_json("payments.json", payments)
+
+        scores = load_json("scores.json")
+        scores = [s for s in scores if s["student_id"] != student_id]
+        save_json("scores.json", scores)
+
+    return student
