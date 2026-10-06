@@ -6,6 +6,10 @@ Built for small schools and tutoring centers still tracking fees and grades by h
 
 ---
 
+## Live Demo
+
+Try the web interface: [School Tracker](https://school-tracker-web.onrender.com)
+
 ## What It Does
 
 **Manages records**
@@ -17,6 +21,7 @@ Built for small schools and tutoring centers still tracking fees and grades by h
 **Computes and reports**
 - Fees due, paid, outstanding, and arrears status per student
 - Class rank by average score — always within class, never across
+- Export to CSV and PDF
 - Term reports in five modes:
 
 | Mode | Command | Output |
@@ -27,7 +32,6 @@ Built for small schools and tutoring centers still tracking fees and grades by h
 | Per class | `--class "Grade 2"` | One class in detail |
 | Solo student | `--student STU001` | One student — fees, rank in class, subject breakdown |
 
-- Export to CSV and PDF
 
 No database. No server. No subscription.
 
